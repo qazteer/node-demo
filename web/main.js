@@ -1,23 +1,24 @@
-var express = require('express');
-var app = express(),
+var express = require('express'),
+bodyParser = require('body-parser'),
+app = express(),
 server;
 
 var store = {
 	home:{
 		page:'Our Supper Awesome App',
-		content:'Home'
+		content:'Home Page Content'
 	},
 	about:{
 		page:'About Page',
-		content:'This you about'
+		content:'About Page Content'
 	},
 	downloads:{
 		page:'Downloads Page',
-		content:'This you downloads'
+		content:'Downloads Page Content'
 	},
 	profile:{
 		page:'Profile Page',
-		content:'This you profile'
+		content:'Profile Page Content'
 	}
 }
 
@@ -32,12 +33,25 @@ app.use(function(req, res, next){
 });
 
 app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({extended:'true'}));
 
-app.get('/form', function(req, res){
+app.route('/form')
+.get(function(req, res){
 	res.render('form',{
-		page: 'Form page',
+		page: 'Form Page',
 		links: storeKeys
 	});
+})
+.post(function(req, res){
+	var data = req.body;
+	if(data.pageurl && data.pagename && data.pagecontent){
+		store[data.pageurl] = {
+			page : data.pagename,
+			content : data.pagecontent
+		}
+		storeKeys = Object.keys(store);
+	}
+	res.redirect('/');
 });
 
 app.get('/:page?', function(req, res){
